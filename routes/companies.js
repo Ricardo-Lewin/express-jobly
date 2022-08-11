@@ -6,7 +6,7 @@ const jsonschema = require("jsonschema");
 const express = require("express");
 
 const { BadRequestError } = require("../expressError");
-const { ensureLoggedIn } = require("../middleware/auth");
+const { ensureAdmin } = require("../middleware/auth");
 const Company = require("../models/company");
 
 const companyNewSchema = require("../schemas/companyNew.json");
@@ -25,7 +25,7 @@ const router = new express.Router();
  * Authorization required: login
  */
 
-router.post("/", ensureLoggedIn, async function (req, res, next) {
+router.post("/", ensureAdmin, async function (req, res, next) {
   try {
     const validator = jsonschema.validate(req.body, companyNewSchema);
     if (!validator.valid) {
@@ -60,11 +60,6 @@ router.get("/", async function (req, res, next) {
 
   
   try {
-    // check that max is not less than min
-    if (q.maxEmployees < q.minEmployees) {
-      throw new BadRequestError("max employees can't be less then minimum employees")
-    }
-    
     const validator = jsonschema.validate(q, companySearchSchema);
     
     if (!validator.valid) {
